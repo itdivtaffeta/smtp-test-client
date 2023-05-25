@@ -13,45 +13,231 @@ export default function Home() {
   const [choice, setChoice] = useState("promise.all");
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusCount, setStatusCount] = useState({
+    success: 0,
+    error: 0,
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     if (choice === "promise.all") {
-      await Promise.all(
-        Array.from({ length: amount }, async (_, index) => {
-          try {
-            const today = new Date();
-            const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+      // chat gpt
+      async function makeRequests(totalRequests) {
+        const chunkSize = 1000;
+        const totalChunks = Math.ceil(totalRequests / chunkSize);
+        console.log(`Total chunks: ${totalChunks}`);
 
-            const res = await axios.post("/api/", {
-              host,
-              port,
-              username,
-              password,
-              to,
-              subject: `SMTP Test Client ${index + 1} - ${time}`,
-            });
+        // Recursive function to make requests in chunks
+        async function makeRequestsInChunks(chunkIndex) {
+          const start = chunkIndex * chunkSize + 1;
+          const end = Math.min(start + chunkSize - 1, totalRequests);
 
-            setMessages((messages) => [
-              ...messages,
-              {
-                isError: false,
-                message: res.data?.message,
-              },
-            ]);
-          } catch (err) {
-            setMessages((messages) => [
-              ...messages,
-              {
-                isError: true,
-                message: err?.response?.data?.message || "something went wrong",
-              },
-            ]);
+          console.log(`Making requests from ${start} to ${end}`);
+
+          await Promise.all(
+            Array.from({ length: end - start + 1 }, async (_, index) => {
+              // Replace this with your actual request code
+              try {
+                const today = new Date();
+                const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+
+                const res = await axios.post("/api/", {
+                  host,
+                  port,
+                  username,
+                  password,
+                  to,
+                  subject: `SMTP Test Client - ${chunkIndex + 1} - ${
+                    index + 1
+                  } - ${time}`,
+                });
+
+                setMessages((messages) => [
+                  ...messages,
+                  {
+                    isError: false,
+                    message: res?.data?.message,
+                  },
+                ]);
+                setStatusCount((statusCount) => ({
+                  ...statusCount,
+                  success: statusCount.success + 1,
+                }));
+              } catch (err) {
+                setMessages((messages) => [
+                  ...messages,
+                  {
+                    isError: true,
+                    message:
+                      err?.response?.data?.message || "something went wrong",
+                  },
+                ]);
+                console.log(err);
+                setStatusCount((statusCount) => ({
+                  ...statusCount,
+                  error: statusCount.error + 1,
+                }));
+              }
+            })
+          );
+
+          // Proceed to the next chunk if available
+          if (chunkIndex < totalChunks - 1) {
+            // setTimeout(() => {
+            //   makeRequestsInChunks(chunkIndex + 1);
+            // }, chunkSize * 1000);
+            makeRequestsInChunks(chunkIndex + 1);
           }
-        })
-      );
+        }
+
+        await makeRequestsInChunks(0);
+      }
+
+      // Usage: Run 1000 requests in chunks of 100
+      await makeRequests(amount);
+      setIsLoading(false);
+      return;
+      // send 50 request at a time
+
+      const chunks = Math.ceil(amount / 500);
+      const requestPerChunk = Math.ceil(amount / chunks);
+
+      for await (const _ of Array.from({ length: chunks })) {
+        await Promise.all(
+          Array.from({ length: requestPerChunk }, async (_, index) => {
+            try {
+              const today = new Date();
+              const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+
+              const res = await axios.post("/api/", {
+                host,
+                port,
+                username,
+                password,
+                to,
+                subject: `SMTP Test Client ${index + 1} - ${time}`,
+              });
+
+              setMessages((messages) => [
+                ...messages,
+                {
+                  isError: false,
+                  message: res?.data?.message,
+                },
+              ]);
+              setStatusCount((statusCount) => ({
+                ...statusCount,
+                success: statusCount.success + 1,
+              }));
+            } catch (err) {
+              setMessages((messages) => [
+                ...messages,
+                {
+                  isError: true,
+                  message:
+                    err?.response?.data?.message || "something went wrong",
+                },
+              ]);
+              console.log(err);
+              setStatusCount((statusCount) => ({
+                ...statusCount,
+                error: statusCount.error + 1,
+              }));
+            }
+          })
+        );
+      }
+
+      setIsLoading(false);
+
+      // const chunks = Math.ceil(amount / 1000);
+      // const requestPerChunk = Math.ceil(amount / chunks);
+
+      return;
+      setIsLoading(false);
+      const promises = [];
+
+      for await (const _ of Array.from({ length: chunks })) {
+        await Promise.all(
+          Array.from({ length: 1000 }, async (_, index) => {
+            try {
+              const today = new Date();
+              const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+
+              const res = await axios.post("/api/", {
+                host,
+                port,
+                username,
+                password,
+                to,
+                subject: `SMTP Test Client ${index + 1} - ${time}`,
+              });
+
+              setMessages((messages) => [
+                ...messages,
+                {
+                  isError: false,
+                  message: res?.data?.message,
+                },
+              ]);
+              setStatusCount((statusCount) => ({
+                ...statusCount,
+                success: statusCount.success + 1,
+              }));
+            } catch (err) {
+              setMessages((messages) => [
+                ...messages,
+                {
+                  isError: true,
+                  message:
+                    err?.response?.data?.message || "something went wrong",
+                },
+              ]);
+              console.log(err);
+              setStatusCount((statusCount) => ({
+                ...statusCount,
+                error: statusCount.error + 1,
+              }));
+            }
+          })
+        );
+      }
+      // return;
+      // await Promise.all(
+      //   Array.from({ length: amount }, async (_, index) => {
+      //     try {
+      //       const today = new Date();
+      //       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+
+      //       const res = await axios.post("/api/", {
+      //         host,
+      //         port,
+      //         username,
+      //         password,
+      //         to,
+      //         subject: `SMTP Test Client ${index + 1} - ${time}`,
+      //       });
+
+      //       setMessages((messages) => [
+      //         ...messages,
+      //         {
+      //           isError: false,
+      //           message: res.data?.message,
+      //         },
+      //       ]);
+      //     } catch (err) {
+      //       setMessages((messages) => [
+      //         ...messages,
+      //         {
+      //           isError: true,
+      //           message: err?.response?.data?.message || "something went wrong",
+      //         },
+      //       ]);
+      //     }
+      //   })
+      // );
     }
 
     if (choice === "for.loop") {
@@ -76,6 +262,11 @@ export default function Home() {
               message: res.data?.message,
             },
           ]);
+
+          setStatusCount((statusCount) => ({
+            ...statusCount,
+            success: statusCount.success + 1,
+          }));
         } catch (err) {
           setMessages((messages) => [
             ...messages,
@@ -84,6 +275,11 @@ export default function Home() {
               message: err?.response?.data?.message || "something went wrong",
             },
           ]);
+
+          setStatusCount((statusCount) => ({
+            ...statusCount,
+            error: statusCount.error + 1,
+          }));
         }
       }
     }
@@ -306,7 +502,10 @@ export default function Home() {
           </button>
           <button
             className="border border-transparent bg-gray-500 rounded-md p-2 text-white w-full"
-            onClick={() => setMessages([])}
+            onClick={() => {
+              setStatusCount({ success: 0, error: 0 });
+              setMessages([]);
+            }}
             type="button"
           >
             Clear
@@ -314,8 +513,32 @@ export default function Home() {
         </div>
       </form>
 
-      {/* create log information */}
-      <div className="flex flex-col space-y-4 mt-10 max-h-3">
+      {/* show success and error count */}
+      <div className="flex flex-row space-x-4 mt-10">
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="success">Success</label>
+          <input
+            type="number"
+            value={statusCount.success}
+            id="success"
+            className="border border-gray-300 rounded-md p-2"
+            readOnly
+          />
+        </div>
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="error">Error</label>
+          <input
+            type="number"
+            value={statusCount.error}
+            id="error"
+            className="border border-gray-300 rounded-md p-2"
+            readOnly
+          />
+        </div>
+      </div>
+
+      {/* add max height and scrollable */}
+      <div className="flex flex-col space-y-4 mt-10 max-h-96 overflow-y-auto">
         {messages.map((message, index) => (
           <div
             key={index}
