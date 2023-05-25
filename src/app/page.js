@@ -17,68 +17,71 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    await Promise.all(
-      Array.from({ length: amount }, async (_, index) => {
-        try {
-          const today = new Date();
-          const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+    // await Promise.all(
+    //   Array.from({ length: amount }, async (_, index) => {
+    //     try {
+    //       const today = new Date();
+    //       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 
-          const res = await axios.post("/api/", {
-            host,
-            port,
-            username,
-            password,
-            to,
-            subject: `SMTP Test Client ${index + 1} - ${time}`,
-          });
+    //       const res = await axios.post("/api/", {
+    //         host,
+    //         port,
+    //         username,
+    //         password,
+    //         to,
+    //         subject: `SMTP Test Client ${index + 1} - ${time}`,
+    //       });
 
-          setMessages((messages) => [
-            ...messages,
-            {
-              isError: false,
-              message: res.data?.message,
-            },
-          ]);
-        } catch (err) {
-          setMessages((messages) => [
-            ...messages,
-            {
-              isError: true,
-              message: err?.response?.data?.message || "something went wrong",
-            },
-          ]);
-        }
-      })
-    );
+    //       setMessages((messages) => [
+    //         ...messages,
+    //         {
+    //           isError: false,
+    //           message: res.data?.message,
+    //         },
+    //       ]);
+    //     } catch (err) {
+    //       setMessages((messages) => [
+    //         ...messages,
+    //         {
+    //           isError: true,
+    //           message: err?.response?.data?.message || "something went wrong",
+    //         },
+    //       ]);
+    //     }
+    //   })
+    // );
 
-    // for await (const _ of Array.from({ length: amount })) {
-    //   try {
-    //     const res = await axios.post("/api/", {
-    //       host,
-    //       port,
-    //       username,
-    //       password,
-    //       to,
-    //       subject: `Hello from SMTP Test Client`,
-    //     });
+    for (let index = 0; index < amount; index++) {
+      try {
+        const today = new Date();
+        const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 
-    //     setMessages((messages) => [
-    //       ...messages,
-    //       {
-    //         isError: false,
-    //         message: res.data?.message,
-    //       },
-    //     ]);
-    //   } catch (err) {
-    //     setMessages((messages) => [
-    //       ...messages,
-    //       {
-    //         isError: true,
-    //         message: err?.response?.data?.message || "something went wrong",
-    //       },
-    //     ]);
-    //   }
-    // }
+        const res = await axios.post("/api/", {
+          host,
+          port,
+          username,
+          password,
+          to,
+          subject: `SMTP Test Client ${index + 1} - ${time}`,
+        });
+
+        setMessages((messages) => [
+          ...messages,
+          {
+            isError: false,
+            message: res.data?.message,
+          },
+        ]);
+      } catch (err) {
+        setMessages((messages) => [
+          ...messages,
+          {
+            isError: true,
+            message: err?.response?.data?.message || "something went wrong",
+          },
+        ]);
+      }
+    }
 
     setIsLoading(false);
 
