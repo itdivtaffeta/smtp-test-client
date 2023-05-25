@@ -84,33 +84,6 @@ export default function Home() {
     }
 
     setIsLoading(false);
-
-    // for (let index = 0; index < amount; index++) {
-    //   console.log("index", index);
-    //   axios
-    //     .post("/api/", {
-    //       host,
-    //       port,
-    //       username,
-    //       password,
-    //       to,
-    //     })
-    //     .then((res) => {
-    //       setMessages((messages) => [
-    //         ...messages,
-    //         {
-    //           isError: false,
-    //           message: res.data?.message,
-    //         },
-    //       ]);
-    //     })
-    //     .catch((err) => {
-    //       setMessages((messages) => [
-    //         ...messages,
-    //         { isError: true, message: err.response.data?.message },
-    //       ]);
-    //     });
-    // }
   };
 
   return (
@@ -237,7 +210,53 @@ export default function Home() {
                 >
                   100
                 </button>
+                <button
+                  className={
+                    amount === 1000
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-15"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-15"
+                  }
+                  type="button"
+                  onClick={() => setAmount(1000)}
+                >
+                  1000
+                </button>
+                <button
+                  className={
+                    amount === 5000
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-15"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-15"
+                  }
+                  type="button"
+                  onClick={() => setAmount(5000)}
+                >
+                  5000
+                </button>
+                <button
+                  className={
+                    amount === 10000
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-15"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-15"
+                  }
+                  type="button"
+                  onClick={() => setAmount(10000)}
+                >
+                  10000
+                </button>
               </div>
+              <input
+                type="number"
+                value={amount}
+                id="amount"
+                onChange={(e) => {
+                  if (isNaN(e.target.value)) {
+                    setAmount(1);
+                  } else {
+                    setAmount(parseInt(e.target.value));
+                  }
+                }}
+                className="border border-gray-300 rounded-md p-2"
+              />
             </div>
           </div>
           <button
