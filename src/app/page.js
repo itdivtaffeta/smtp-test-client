@@ -10,6 +10,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [to, setTo] = useState("");
+  const [choice, setChoice] = useState("promise.all");
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,69 +18,73 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    // await Promise.all(
-    //   Array.from({ length: amount }, async (_, index) => {
-    //     try {
-    //       const today = new Date();
-    //       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+    if (choice === "promise.all") {
+      await Promise.all(
+        Array.from({ length: amount }, async (_, index) => {
+          try {
+            const today = new Date();
+            const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 
-    //       const res = await axios.post("/api/", {
-    //         host,
-    //         port,
-    //         username,
-    //         password,
-    //         to,
-    //         subject: `SMTP Test Client ${index + 1} - ${time}`,
-    //       });
+            const res = await axios.post("/api/", {
+              host,
+              port,
+              username,
+              password,
+              to,
+              subject: `SMTP Test Client ${index + 1} - ${time}`,
+            });
 
-    //       setMessages((messages) => [
-    //         ...messages,
-    //         {
-    //           isError: false,
-    //           message: res.data?.message,
-    //         },
-    //       ]);
-    //     } catch (err) {
-    //       setMessages((messages) => [
-    //         ...messages,
-    //         {
-    //           isError: true,
-    //           message: err?.response?.data?.message || "something went wrong",
-    //         },
-    //       ]);
-    //     }
-    //   })
-    // );
+            setMessages((messages) => [
+              ...messages,
+              {
+                isError: false,
+                message: res.data?.message,
+              },
+            ]);
+          } catch (err) {
+            setMessages((messages) => [
+              ...messages,
+              {
+                isError: true,
+                message: err?.response?.data?.message || "something went wrong",
+              },
+            ]);
+          }
+        })
+      );
+    }
 
-    for (let index = 0; index < amount; index++) {
-      try {
-        const today = new Date();
-        const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+    if (choice === "for.loop") {
+      for (let index = 0; index < amount; index++) {
+        try {
+          const today = new Date();
+          const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 
-        const res = await axios.post("/api/", {
-          host,
-          port,
-          username,
-          password,
-          to,
-          subject: `SMTP Test Client ${index + 1} - ${time}`,
-        });
+          const res = await axios.post("/api/", {
+            host,
+            port,
+            username,
+            password,
+            to,
+            subject: `SMTP Test Client ${index + 1} - ${time}`,
+          });
 
-        setMessages((messages) => [
-          ...messages,
-          {
-            isError: false,
-            message: res.data?.message,
-          },
-        ]);
-      } catch (err) {
-        setMessages((messages) => [
-          ...messages,
-          {
-            isError: true,
-            message: err?.response?.data?.message || "something went wrong",
-          },
-        ]);
+          setMessages((messages) => [
+            ...messages,
+            {
+              isError: false,
+              message: res.data?.message,
+            },
+          ]);
+        } catch (err) {
+          setMessages((messages) => [
+            ...messages,
+            {
+              isError: true,
+              message: err?.response?.data?.message || "something went wrong",
+            },
+          ]);
+        }
       }
     }
 
@@ -150,7 +155,6 @@ export default function Home() {
               required
             />
           </div>
-          {/* create radio for amount, 1, 5, 50, and custom */}
           <div className="flex flex-row space-x-4">
             <div className="flex flex-col space-y-2">
               <label htmlFor="amount">Amount</label>
@@ -257,6 +261,37 @@ export default function Home() {
                 }}
                 className="border border-gray-300 rounded-md p-2"
               />
+            </div>
+          </div>
+          {/* create radio for choice using promise.all or for loop */}
+          <div className="flex flex-row space-x-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="choice">Choice</label>
+              <div className="flex flex-row space-x-2">
+                <button
+                  className={
+                    choice === "promise.all"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 "
+                      : "border border-transparent bg-blue-100 rounded-md p-2 "
+                  }
+                  onClick={() => setChoice("promise.all")}
+                  type="button"
+                >
+                  Concurrent
+                </button>
+
+                <button
+                  className={
+                    choice === "for.loop"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 "
+                      : "border border-transparent bg-blue-100 rounded-md p-2 "
+                  }
+                  onClick={() => setChoice("for.loop")}
+                  type="button"
+                >
+                  Sequential
+                </button>
+              </div>
             </div>
           </div>
           <button
