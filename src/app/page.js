@@ -26,6 +26,7 @@ export default function Home() {
             username,
             password,
             to,
+            subject: `Hello from SMTP Test Client ${index + 1}`,
           });
 
           setMessages((messages) => [
@@ -212,6 +213,13 @@ export default function Home() {
             disabled={isLoading}
           >
             Send
+          </button>
+          <button
+            className="border border-transparent bg-gray-500 rounded-md p-2 text-white w-full"
+            onClick={() => setMessages([])}
+            type="button"
+          >
+            Clear
           </button>
         </div>
       </form>

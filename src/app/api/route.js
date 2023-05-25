@@ -7,6 +7,7 @@ export async function POST(request) {
   let host;
   let port;
   let to;
+  let subject;
 
   try {
     const req = await request.json();
@@ -15,6 +16,7 @@ export async function POST(request) {
     host = req.host;
     port = req.port;
     to = req.to;
+    subject = req.subject;
   } catch (error) {
     return NextResponse.json(
       {
@@ -54,7 +56,7 @@ export async function POST(request) {
   const mailOptions = {
     from: username,
     to: to,
-    subject: "SMTP Test",
+    subject: subject || "Hello from SMTP Test Client",
     text: "Hello from SMTP Test Client",
     html: `<!DOCTYPE html>
     <html>
@@ -108,6 +110,8 @@ export async function POST(request) {
   };
 
   try {
+    // set max timeout to 10 seconds
+
     const info = await transporter.sendMail(mailOptions);
     return NextResponse.json(
       {
