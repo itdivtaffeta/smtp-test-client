@@ -1,113 +1,236 @@
-import Image from 'next/image'
+"use client";
+import { useState } from "react";
+import axios from "axios";
+// import nodemailer from "nodemailer";
 
 export default function Home() {
+  const [amount, setAmount] = useState(1);
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState(587);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [to, setTo] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    await Promise.all(
+      Array.from({ length: amount }, async (_, index) => {
+        try {
+          const res = await axios.post("/api/", {
+            host,
+            port,
+            username,
+            password,
+            to,
+          });
+
+          setMessages((messages) => [
+            ...messages,
+            {
+              isError: false,
+              message: res.data?.message,
+            },
+          ]);
+        } catch (err) {
+          setMessages((messages) => [
+            ...messages,
+            {
+              isError: true,
+              message: err?.response?.data?.message || "something went wrong",
+            },
+          ]);
+        }
+      })
+    );
+    setIsLoading(false);
+
+    // for (let index = 0; index < amount; index++) {
+    //   console.log("index", index);
+    //   axios
+    //     .post("/api/", {
+    //       host,
+    //       port,
+    //       username,
+    //       password,
+    //       to,
+    //     })
+    //     .then((res) => {
+    //       setMessages((messages) => [
+    //         ...messages,
+    //         {
+    //           isError: false,
+    //           message: res.data?.message,
+    //         },
+    //       ]);
+    //     })
+    //     .catch((err) => {
+    //       setMessages((messages) => [
+    //         ...messages,
+    //         { isError: true, message: err.response.data?.message },
+    //       ]);
+    //     });
+    // }
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <main className="flex min-h-screen flex-col p-24 bg-gray-100 items-center">
+      <h3 className="text-3xl font-bold mb-5">SMTP Test Client</h3>
+      <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-row space-x-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="host">Host</label>
+              <input
+                id="host"
+                type="text"
+                className="border border-gray-300 rounded-md p-2"
+                onChange={(e) => setHost(e.target.value)}
+                value={host}
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="port">Port</label>
+              <input
+                id="port"
+                type="text"
+                className="border border-gray-300 rounded-md p-2"
+                onChange={(e) => setPort(e.target.value)}
+                value={port}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row space-x-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="username">Username</label>
+              <input
+                id="username"
+                type="text"
+                className="border border-gray-300 rounded-md p-2"
+                onChange={(e) => setUsername(e.target.value)}
+                value={username}
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                className="border border-gray-300 rounded-md p-2"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="host">To</label>
+            <input
+              id="to"
+              type="text"
+              className="border border-gray-300 rounded-md p-2"
+              onChange={(e) => setTo(e.target.value)}
+              value={to}
+              required
             />
-          </a>
+          </div>
+          {/* create radio for amount, 1, 5, 50, and custom */}
+          <div className="flex flex-row space-x-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="amount">Amount</label>
+              <div className="flex flex-row space-x-2">
+                <button
+                  className={
+                    amount === 1
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-12"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-12"
+                  }
+                  onClick={() => setAmount(1)}
+                  type="button"
+                >
+                  1
+                </button>
+                <button
+                  className={
+                    amount === 5
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-12"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-12"
+                  }
+                  type="button"
+                  onClick={() => setAmount(5)}
+                >
+                  5
+                </button>
+                <button
+                  className={
+                    amount === 10
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-12"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-12"
+                  }
+                  type="button"
+                  onClick={() => setAmount(10)}
+                >
+                  10
+                </button>
+                <button
+                  className={
+                    amount === 50
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-12"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-12"
+                  }
+                  type="button"
+                  onClick={() => setAmount(50)}
+                >
+                  50
+                </button>
+                <button
+                  className={
+                    amount === 100
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2 w-12"
+                      : "border border-transparent bg-blue-100 rounded-md p-2 w-12"
+                  }
+                  type="button"
+                  onClick={() => setAmount(100)}
+                >
+                  100
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            className={
+              isLoading
+                ? "border border-transparent bg-gray-500 text-white rounded-md p-2 w-full "
+                : "border border-transparent bg-blue-500 rounded-md p-2 w-full text-white "
+            }
+            disabled={isLoading}
+          >
+            Send
+          </button>
         </div>
-      </div>
+      </form>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      {/* create log information */}
+      <div className="flex flex-col space-y-4 mt-10 max-h-3">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={
+              message.isError
+                ? "border border-red-500 bg-red-100 rounded-md p-2"
+                : "border border-green-500 bg-green-100 rounded-md p-2"
+            }
+          >
+            {message.message}
+          </div>
+        ))}
       </div>
     </main>
-  )
+  );
 }
