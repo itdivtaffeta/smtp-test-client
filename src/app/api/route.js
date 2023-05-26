@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import fs from "fs";
+// import attachment50kb from "../../../public/50kb.txt";
+// import attachment100kb from "../../../public/100kb.txt";
+// import attachment250kb from "../../../public/250kb.txt";
 
 export async function POST(request) {
   let username;
@@ -8,6 +12,9 @@ export async function POST(request) {
   let port;
   let to;
   let subject;
+  let attachment;
+
+  let file;
 
   try {
     const req = await request.json();
@@ -17,6 +24,7 @@ export async function POST(request) {
     port = req.port;
     to = req.to;
     subject = req.subject;
+    attachment = req.attachment;
   } catch (error) {
     return NextResponse.json(
       {
@@ -26,6 +34,14 @@ export async function POST(request) {
         status: 400,
       }
     );
+  }
+
+  if (attachment === "50kb") {
+    file = fs.readFileSync("public/50kb.png");
+  } else if (attachment === "100kb") {
+    file = fs.readFileSync("public/100kb.png");
+  } else if (attachment === "250kb") {
+    file = fs.readFileSync("public/250kb.png");
   }
 
   if (!username || !password || !host || !port || !to) {
@@ -94,6 +110,7 @@ export async function POST(request) {
       </head>
       <body>
         <div class="container">
+          ${file ? `<img src="cid:image" style="width: 30%;" />` : ""}
           <h1>Test Email</h1>
           <p>This email is being sent as a test message.</p>
           <p>Please disregard and do not take any action based on this email.</p>
@@ -108,6 +125,16 @@ export async function POST(request) {
     </html>
     `,
   };
+
+  if (file) {
+    mailOptions.attachments = [
+      {
+        filename: "image.png",
+        content: file,
+        cid: "image",
+      },
+    ];
+  }
 
   try {
     // set max timeout to 10 seconds

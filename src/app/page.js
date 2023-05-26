@@ -18,6 +18,7 @@ export default function Home() {
     success: 0,
     error: 0,
   });
+  const [attachment, setAttachment] = useState("none");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,6 +52,7 @@ export default function Home() {
                   username,
                   password,
                   to,
+                  attachment,
                   // subject: `SMTP Test Client - ${chunkIndex + 1} - ${
                   //   index + 1
                   // } - ${time}`,
@@ -150,6 +152,7 @@ export default function Home() {
             username,
             password,
             to,
+            attachment,
             subject: `SMTP Test Client ${index + 1} - ${time}`,
           });
 
@@ -248,6 +251,57 @@ export default function Home() {
               value={to}
               required
             />
+          </div>
+          <div className="flex flex-row space-x-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="attachment">Attachment</label>
+              <div className="flex flex-row space-x-2">
+                <button
+                  className={
+                    attachment === "none"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2"
+                      : "border border-transparent bg-blue-100 rounded-md p-2"
+                  }
+                  onClick={() => setAttachment("none")}
+                  type="button"
+                >
+                  none
+                </button>
+                <button
+                  className={
+                    attachment === "50kb"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2"
+                      : "border border-transparent bg-blue-100 rounded-md p-2"
+                  }
+                  type="button"
+                  onClick={() => setAttachment("50kb")}
+                >
+                  50 KB
+                </button>
+                <button
+                  className={
+                    attachment === "100kb"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2"
+                      : "border border-transparent bg-blue-100 rounded-md p-2"
+                  }
+                  type="button"
+                  onClick={() => setAttachment("100kb")}
+                >
+                  100 KB
+                </button>
+                <button
+                  className={
+                    attachment === "250kb"
+                      ? "border border-transparent bg-blue-500 text-white rounded-md p-2"
+                      : "border border-transparent bg-blue-100 rounded-md p-2"
+                  }
+                  type="button"
+                  onClick={() => setAttachment("250kb")}
+                >
+                  250 KB
+                </button>
+              </div>
+            </div>
           </div>
           <div className="flex flex-row space-x-4">
             <div className="flex flex-col space-y-2">
