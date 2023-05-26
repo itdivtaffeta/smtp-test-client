@@ -11,6 +11,7 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [to, setTo] = useState("");
   const [choice, setChoice] = useState("promise.all");
+  const [chunkSize, setChunkSize] = useState(1000);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statusCount, setStatusCount] = useState({
@@ -24,8 +25,9 @@ export default function Home() {
 
     if (choice === "promise.all") {
       // chat gpt
+      let count = 1;
       async function makeRequests(totalRequests) {
-        const chunkSize = 1000;
+        // const chunkSize = 1000;
         const totalChunks = Math.ceil(totalRequests / chunkSize);
         console.log(`Total chunks: ${totalChunks}`);
 
@@ -49,9 +51,10 @@ export default function Home() {
                   username,
                   password,
                   to,
-                  subject: `SMTP Test Client - ${chunkIndex + 1} - ${
-                    index + 1
-                  } - ${time}`,
+                  // subject: `SMTP Test Client - ${chunkIndex + 1} - ${
+                  //   index + 1
+                  // } - ${time}`,
+                  subject: `SMTP Test Client - ${count++} - ${time}`,
                 });
 
                 setMessages((messages) => [
@@ -98,112 +101,7 @@ export default function Home() {
       // Usage: Run 1000 requests in chunks of 100
       await makeRequests(amount);
       setIsLoading(false);
-      return;
-      // send 50 request at a time
 
-      const chunks = Math.ceil(amount / 500);
-      const requestPerChunk = Math.ceil(amount / chunks);
-
-      for await (const _ of Array.from({ length: chunks })) {
-        await Promise.all(
-          Array.from({ length: requestPerChunk }, async (_, index) => {
-            try {
-              const today = new Date();
-              const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-
-              const res = await axios.post("/api/", {
-                host,
-                port,
-                username,
-                password,
-                to,
-                subject: `SMTP Test Client ${index + 1} - ${time}`,
-              });
-
-              setMessages((messages) => [
-                ...messages,
-                {
-                  isError: false,
-                  message: res?.data?.message,
-                },
-              ]);
-              setStatusCount((statusCount) => ({
-                ...statusCount,
-                success: statusCount.success + 1,
-              }));
-            } catch (err) {
-              setMessages((messages) => [
-                ...messages,
-                {
-                  isError: true,
-                  message:
-                    err?.response?.data?.message || "something went wrong",
-                },
-              ]);
-              console.log(err);
-              setStatusCount((statusCount) => ({
-                ...statusCount,
-                error: statusCount.error + 1,
-              }));
-            }
-          })
-        );
-      }
-
-      setIsLoading(false);
-
-      // const chunks = Math.ceil(amount / 1000);
-      // const requestPerChunk = Math.ceil(amount / chunks);
-
-      return;
-      setIsLoading(false);
-      const promises = [];
-
-      for await (const _ of Array.from({ length: chunks })) {
-        await Promise.all(
-          Array.from({ length: 1000 }, async (_, index) => {
-            try {
-              const today = new Date();
-              const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-
-              const res = await axios.post("/api/", {
-                host,
-                port,
-                username,
-                password,
-                to,
-                subject: `SMTP Test Client ${index + 1} - ${time}`,
-              });
-
-              setMessages((messages) => [
-                ...messages,
-                {
-                  isError: false,
-                  message: res?.data?.message,
-                },
-              ]);
-              setStatusCount((statusCount) => ({
-                ...statusCount,
-                success: statusCount.success + 1,
-              }));
-            } catch (err) {
-              setMessages((messages) => [
-                ...messages,
-                {
-                  isError: true,
-                  message:
-                    err?.response?.data?.message || "something went wrong",
-                },
-              ]);
-              console.log(err);
-              setStatusCount((statusCount) => ({
-                ...statusCount,
-                error: statusCount.error + 1,
-              }));
-            }
-          })
-        );
-      }
       // return;
       // await Promise.all(
       //   Array.from({ length: amount }, async (_, index) => {
@@ -490,6 +388,27 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* create input to input chunk size */}
+          {choice === "promise.all" && (
+            <div className="flex flex-row space-x-4">
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="chunkSize">Chunk Size</label>
+                <input
+                  type="number"
+                  value={chunkSize}
+                  id="chunkSize"
+                  onChange={(e) => {
+                    if (isNaN(e.target.value)) {
+                      setChunkSize(1);
+                    } else {
+                      setChunkSize(parseInt(e.target.value));
+                    }
+                  }}
+                  className="border border-gray-300 rounded-md p-2"
+                />
+              </div>
+            </div>
+          )}
           <button
             className={
               isLoading
