@@ -15,9 +15,9 @@ export async function POST(request) {
   let attachment;
 
   let file;
-
+  let req;
   try {
-    const req = await request.json();
+    req = await request.json();
     username = req.username;
     password = req.password;
     host = req.host;
@@ -70,7 +70,7 @@ export async function POST(request) {
   });
 
   const mailOptions = {
-    from: username,
+    from: req.from || username,
     to: to,
     subject: subject || "Hello from SMTP Test Client",
     text: "Hello from SMTP Test Client",
