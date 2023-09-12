@@ -10,6 +10,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [to, setTo] = useState("");
+  const [from, setFrom] = useState("");
   const [choice, setChoice] = useState("promise.all");
   const [chunkSize, setChunkSize] = useState(1000);
   const [messages, setMessages] = useState([]);
@@ -52,6 +53,7 @@ export default function Home() {
                   username,
                   password,
                   to,
+                  from,
                   attachment,
                   // subject: `SMTP Test Client - ${chunkIndex + 1} - ${
                   //   index + 1
@@ -152,6 +154,7 @@ export default function Home() {
             username,
             password,
             to,
+            from,
             attachment,
             subject: `SMTP Test Client ${index + 1} - ${time}`,
           });
@@ -240,6 +243,17 @@ export default function Home() {
                 required
               />
             </div>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="from">From</label>
+            <input
+              id="from"
+              type="text"
+              className="border border-gray-300 rounded-md p-2"
+              onChange={(e) => setFrom(e.target.value)}
+              value={from}
+              // placeholder="foobar@example.com or Foo Bar <foobar@example.com>"
+            />
           </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="host">To</label>
